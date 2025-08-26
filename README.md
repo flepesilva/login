@@ -1,108 +1,90 @@
-# Documentación de la API de Autenticación OAuth
+# API de Autenticación y Login (NestJS)
 
 ## Descripción
 
-Este proyecto implementa un sistema completo de autenticación y autorización desarrollado con NestJS. La API proporciona múltiples métodos de autenticación, gestión de usuarios, y características de seguridad avanzadas.
+Este proyecto implementa un backend de autenticación y login desarrollado con NestJS. Proporciona registro, login local, login con Google OAuth, recuperación de contraseña y gestión básica de usuarios.
 
-## Índice de Documentación
+## Documentación
 
 1. [Documentación Backend](docs/backend-documentation.md)
-   * Documentación completa de los endpoints disponibles
-   * Configuración del entorno de desarrollo
-   * Guía de implementación y mejores prácticas
+   * Endpoints disponibles
+   * Configuración del entorno
+   * Guía de uso
 
 2. [Guía del Sistema de Tokens](docs/token-system-guide.md)
-   * Explicación detallada del sistema de autenticación JWT
-   * Funcionamiento de los tokens de acceso y refresco mediante cookies HTTP-only
-   * Ciclo de vida completo de los tokens y sesiones
+   * Autenticación JWT
+   * Tokens de acceso y refresco
 
 3. [Documentación de Entidades](docs/entities-documentation.md)
-   * Estructura detallada de todas las entidades del sistema
-   * Relaciones entre las entidades
-   * Índices y optimizaciones en la base de datos
+   * Estructura de usuario y roles
 
 4. [Referencia de Endpoints](docs/endpoints-reference.md)
-   * Documentación completa de todos los endpoints de la API
    * Ejemplos de peticiones y respuestas
-   * Esquemas de datos requeridos
 
 ## Características Principales
 
 ### Autenticación
-- Registro de usuarios con validación de datos
-- Login local con nombre de usuario y contraseña
-- Autenticación OAuth con Google
-- Sistema de tokens JWT almacenados en cookies HTTP-only para máxima seguridad
+- Registro de usuarios con validación
+- Login local (usuario y contraseña)
+- Login con Google OAuth
+- Sistema de tokens JWT en cookies HTTP-only
 - Refresh tokens para mantener la sesión
-- Logout con invalidación de tokens y eliminación de cookies
+- Logout seguro
 
 ### Gestión de Usuarios
-- Sistema de roles (ADMIN, VENDOR, CUSTOMER)
-- Perfiles de usuario personalizables
-- Gestión completa de usuarios (CRUD)
+- Sistema de roles (ADMIN, USER)
+- CRUD básico de usuarios
 - Avatares de usuario
 
 ### Seguridad
-- Tokens JWT almacenados en cookies HTTP-only para prevenir ataques XSS
-- Cookies con atributos secure y SameSite para prevenir CSRF
-- Encriptación de contraseñas con bcrypt/argon2
-- Protección contra ataques de fuerza bruta con limitación de tasa
-- Cabeceras HTTP seguras con Helmet
-- CORS configurado para entornos de producción con credentials: true
-- Validación estricta de entradas mediante DTOs
+- Tokens JWT en cookies HTTP-only (prevención XSS)
+- Cookies seguras y SameSite (prevención CSRF)
+- Encriptación de contraseñas (bcrypt/argon2)
+- Rate limiting para prevenir fuerza bruta
+- Cabeceras HTTP seguras (Helmet)
+- CORS configurado para producción
+- Validación estricta con DTOs
 
 ### Recuperación de Contraseña
-- Flujo completo de recuperación por correo electrónico
-- Tokens de un solo uso con tiempo de expiración
-- Notificaciones por correo electrónico
+- Recuperación por correo electrónico
+- Tokens de un solo uso y expiración
+- Notificaciones por email
 
 ### Sistema de Correos
-- Plantillas personalizables con Handlebars
-- Correos de bienvenida
-- Notificaciones de cambio de contraseña
-- Correos de recuperación de contraseña
-
-### E-commerce
-- Gestión completa de productos y categorías
-- Carrito de compras
-- Procesamiento de pedidos
-- Integración con pasarelas de pago (WebPay Plus)
+- Plantillas con Handlebars
+- Correos de bienvenida y recuperación
 
 ## Tecnologías Utilizadas
 
-- **NestJS**: Framework de backend basado en Node.js
-- **TypeORM**: ORM para gestión de base de datos
-- **PostgreSQL**: Base de datos relacional
-- **Passport.js**: Estrategias de autenticación
-- **JWT**: Tokens para autenticación y autorización
-- **Cookie-parser**: Manejo de cookies HTTP-only
-- **Nodemailer**: Servicio de envío de correos electrónicos
-- **Handlebars**: Motor de plantillas para correos
-- **bcrypt/argon2**: Algoritmos de encriptación para contraseñas
-- **Swagger**: Documentación interactiva de la API
-- **Helmet**: Seguridad mediante cabeceras HTTP
-- **Throttler**: Limitación de tasa para prevenir ataques
-- **AWS S3**: Almacenamiento de archivos
-- **Transbank WebPay**: Integración de pagos
+- **NestJS**: Framework backend Node.js
+- **TypeORM**: ORM para PostgreSQL
+- **PostgreSQL**: Base de datos
+- **Passport.js**: Autenticación local y OAuth
+- **JWT**: Tokens de autenticación
+- **Cookie-parser**: Manejo de cookies
+- **Nodemailer**: Envío de correos
+- **Handlebars**: Plantillas de email
+- **bcrypt/argon2**: Encriptación de contraseñas
+- **Swagger**: Documentación API
+- **Helmet**: Seguridad HTTP
+- **Throttler**: Rate limiting
 
 ## Requisitos del Sistema
 
 - Node.js 16+
 - PostgreSQL 12+
-- Cuenta de servicio de correo electrónico (SMTP)
-- Credenciales de Google OAuth (para autenticación con Google)
-- Cuenta de AWS S3 (para almacenamiento de archivos)
-- Credenciales de Transbank WebPay (para procesamiento de pagos)
+- Cuenta SMTP para correos
+- Credenciales de Google OAuth (opcional)
 
 ## Configuración del Entorno
 
-El sistema utiliza las variables de entorno definidas en `example.env`. Consulta este archivo para una referencia completa de todas las variables requeridas.
+Consulta el archivo `example.env` para ver todas las variables necesarias para la configuración local y de producción.
 
 ## Integración con Frontend
 
-Para integrar correctamente esta API con un frontend, es importante considerar:
+Para integrar esta API con tu frontend:
 
-1. **Configuración CORS**: El frontend debe estar en un origen permitido
-2. **Manejo de Cookies**: El frontend debe incluir `credentials: 'include'` en las peticiones fetch/axios
-3. **Autenticación**: El sistema utiliza cookies HTTP-only para almacenar tokens, por lo que no es necesario manejar tokens manualmente en el cliente
-4. **Renovación de Tokens**: El frontend debe implementar lógica para detectar tokens expirados y llamar al endpoint `/auth/refresh` 
+1. **CORS**: El frontend debe estar en un origen permitido
+2. **Cookies**: Usa `credentials: 'include'` en fetch/axios
+3. **Autenticación**: Los tokens se almacenan en cookies HTTP-only
+4. **Renovación de Tokens**: Llama a `/auth/refresh` cuando el token expire
