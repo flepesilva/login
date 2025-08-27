@@ -29,11 +29,11 @@ export class UserService {
     
     // Asignar rol por defecto si no se especifica
     if (!createUserDto.role) {
-      createUserDto.role = Role.CUSTOMER;
+      createUserDto.role = Role.USER;
     }
     
-    // Solo ADMIN puede crear usuarios con rol ADMIN o EDITOR
-    if (createUserDto.role === Role.ADMIN || createUserDto.role === Role.VENDOR) {
+    // Solo ADMIN puede crear usuarios con rol ADMIN
+    if (createUserDto.role === Role.ADMIN) {
       if (creatorRole !== Role.ADMIN) {
         throw new ForbiddenException('Solo administradores pueden crear usuarios con roles privilegiados');
       }

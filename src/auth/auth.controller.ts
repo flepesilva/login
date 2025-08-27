@@ -68,11 +68,11 @@ export class AuthController {
         };
     }
 
-    @Roles(Role.VENDOR)
+    @Roles(Role.USER)
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Get('test')
     @ApiCookieAuth()
-    @ApiOperation({ summary: 'Endpoint de prueba para rol VENDOR' })
+    @ApiOperation({ summary: 'Endpoint de prueba para rol USER' })
     async test(@Request() req) {
         return req.user;
     }

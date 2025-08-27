@@ -13,14 +13,14 @@ import { UploadAvatarDto } from './dto/upload-avatar.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Roles(Role.ADMIN, Role.VENDOR)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
-  @Roles(Role.ADMIN, Role.VENDOR)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {

@@ -98,7 +98,7 @@ export class AuthService {
       // Asignar rol USER por defecto para registros normales
       const userWithRole = {
         ...registerDto,
-        role: Role.CUSTOMER
+        role: Role.USER
       };
 
       const user = await this.dataSource.transaction(async (manager) => {
@@ -181,7 +181,7 @@ export class AuthService {
           // ya que iniciará sesión con Google
           password: Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10),
           // Asignar rol USER por defecto para usuarios de Google
-          role: Role.CUSTOMER
+          role: Role.USER
         };
         
         user = await this.dataSource.transaction(async (manager) => {
