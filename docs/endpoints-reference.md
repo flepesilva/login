@@ -35,7 +35,7 @@
   "firstName": "Juan",
   "lastName": "Pérez",
   "email": "juan@correo.com",
-  "role": "CUSTOMER",
+  "role": "USER",
   "message": "Registration successful"
 }
 ```
@@ -94,7 +94,7 @@
   "email": "usuario@correo.com",
   "firstName": "Juan",
   "lastName": "Pérez",
-  "role": "CUSTOMER"
+  "role": "USER"
 }
 ```
 
@@ -105,7 +105,7 @@
 **Descripción:** Callback de Google OAuth, crea usuario si no existe y redirige al frontend.
 
 ### GET /auth/test
-**Descripción:** Endpoint de prueba para rol VENDOR.
+**Descripción:** Endpoint de prueba para rol ADMIN.
 
 ## Endpoints de Usuarios (`/users`)
 
@@ -118,7 +118,7 @@
     "email": "usuario@correo.com",
     "firstName": "Juan",
     "lastName": "Pérez",
-    "role": "CUSTOMER"
+    "role": "USER"
   }
 ]
 ```
@@ -131,7 +131,7 @@
   "email": "usuario@correo.com",
   "firstName": "Juan",
   "lastName": "Pérez",
-  "role": "CUSTOMER"
+  "role": "USER"
 }
 ```
 
