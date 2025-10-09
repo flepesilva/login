@@ -5,6 +5,6 @@ export default registerAs(
   'reset-password-jwt',
   (): JwtSignOptions => ({
     secret: process.env.JWT_RESET_SECRET,
-    expiresIn: process.env.JWT_RESET_EXPIRE_IN,
+    expiresIn: process.env.JWT_RESET_PASSWORD_EXPIRATION_TIME,
   }),
 );

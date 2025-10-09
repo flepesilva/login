@@ -51,19 +51,21 @@ export class AuthController {
     @ApiResponse({ status: 201, description: 'Usuario creado exitosamente' })
     @ApiResponse({ status: 400, description: 'Datos de entrada inválidos' })
     async register(@Body() registerDto: RegisterDto, @Res({ passthrough: true }) response: Response) {
-        const user = await this.authService.register(registerDto);
-        const tokens = await this.authService.login(user.id);
+
+        const result = await this.authService.register(registerDto)
+        // const user = await this.authService.register(registerDto);
+        // const tokens = await this.authService.login(user.id);
         
         // Configurar cookies HTTP-only
-        this.setCookies(response, tokens.accessToken, tokens.refreshToken);
+        this.setCookies(response, result.accessToken, result.refreshToken);
         
         // Devolver información de usuario sin tokens
         return {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            role: user.role,
+            id: result.user.id,
+            firstName: result.user.firstName,
+            lastName: result.user.lastName,
+            email: result.user.email,
+            role: result.user.role, 
             message: 'Registration successful'
         };
     }
@@ -102,7 +104,7 @@ export class AuthController {
     @Post('refresh')
     @ApiOperation({ summary: 'Renovar token de acceso' })
     @ApiCookieAuth()
-    refreshToken(@Request() req, @Res({ passthrough: true }) response: Response) {
+    async refreshToken(@Request() req, @Res({ passthrough: true }) response: Response) {
         return this.authService.refreshToken(req.user.id)
             .then(tokens => {
                 // Configurar nuevas cookies HTTP-only

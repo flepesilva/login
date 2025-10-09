@@ -108,7 +108,15 @@ export class AuthService {
       const to = registerDto.email;
       const username = registerDto.firstName;
       await this.mailService.sendWelcomeEmail(to, username);
-      return user;
+
+      const { accessToken, refreshToken } = await this.generateTokens(user.id);
+      const hashedRefreshToken = await argon2.hash(refreshToken);
+      await this.userService.updateRefreshToken(user.id, hashedRefreshToken);
+      return {
+          user,
+          accessToken,
+          refreshToken,
+        };
     }
     
     
