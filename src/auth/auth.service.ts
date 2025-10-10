@@ -12,6 +12,7 @@ import resetJwtConfig from './config/reset-password-jwt.config';
 import { CurrentUser } from './types/current-user.type';
 import { RegisterDto } from './dto/register.dto';
 import { DataSource } from 'typeorm';
+import { EmailQueueService } from 'src/queue/email/email-queue.service'; 
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
         @Inject(resetJwtConfig.KEY)
         private resetPasswordTokenConfig: ConfigType<typeof resetJwtConfig>,
         private dataSource: DataSource,
+        private emailQueueService: EmailQueueService,
     ) {}
 
     
@@ -107,8 +109,11 @@ export class AuthService {
       });
       const to = registerDto.email;
       const username = registerDto.firstName;
-      await this.mailService.sendWelcomeEmail(to, username);
 
+
+      await this.emailQueueService.addWelcomeEmail(to, username);
+
+      
       const { accessToken, refreshToken } = await this.generateTokens(user.id);
       const hashedRefreshToken = await argon2.hash(refreshToken);
       await this.userService.updateRefreshToken(user.id, hashedRefreshToken);
