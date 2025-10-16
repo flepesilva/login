@@ -19,12 +19,12 @@ import { MailModule } from '../mail/mail.module'; // 👈 Importa TU módulo exi
       }),
       inject: [ConfigService],
     }),
-    
+
     // Registra la cola 'email'
     BullModule.registerQueue({
       name: 'email',
     }),
-    
+
     MailModule, // 👈 Tu MailModule existente
   ],
   providers: [EmailQueueService, EmailProcessor],

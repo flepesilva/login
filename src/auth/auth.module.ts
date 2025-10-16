@@ -33,13 +33,12 @@ import { QueueModule } from 'src/queue/queue.module';
   ],
   controllers: [AuthController],
   providers: [
-    AuthService, 
-    UserService, 
-    LocalStrategy, 
-    JwtStrategy, 
+    AuthService,
+    UserService,
+    LocalStrategy,
+    JwtStrategy,
     RefreshJwtStrategy,
-    GoogleStrategy
+    GoogleStrategy,
   ],
-
 })
 export class AuthModule {}

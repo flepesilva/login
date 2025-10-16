@@ -28,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           return token;
         },
         // Mantener la capacidad de extraer del encabezado para compatibilidad
-        ExtractJwt.fromAuthHeaderAsBearerToken()
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: jwtConfiguration.secret,
       ignoreExpiration: false,

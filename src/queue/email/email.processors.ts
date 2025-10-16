@@ -23,15 +23,15 @@ export class EmailProcessor extends WorkerHost {
           // Llama a TU método existente
           await this.mailService.sendWelcomeEmail(
             job.data.to,
-            job.data.username
+            job.data.username,
           );
           break;
-          
+
         case 'password-reset-email':
           // Llama a TU método existente
           await this.mailService.sendPasswordResetEmail(
             job.data.to,
-            job.data.resetToken
+            job.data.resetToken,
           );
           break;
       }

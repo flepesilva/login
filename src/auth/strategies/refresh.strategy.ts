@@ -17,8 +17,10 @@ export class RefreshJwtStrategy extends PassportStrategy(
     private refreshJwtConfiguration: ConfigType<typeof refreshJwtConfig>,
     private authService: AuthService,
   ) {
-    if(!refreshJwtConfiguration.secret) {
-      throw new Error('Refresh JWT secret is not defined in the configuration.');
+    if (!refreshJwtConfiguration.secret) {
+      throw new Error(
+        'Refresh JWT secret is not defined in the configuration.',
+      );
     }
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -27,7 +29,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
           return request?.cookies?.refresh_token || null;
         },
         // Mantener compatibilidad con el método anterior
-        ExtractJwt.fromAuthHeaderAsBearerToken()
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: refreshJwtConfiguration.secret,
       ignoreExpiration: false,
@@ -38,7 +40,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
   validate(req: Request, payload: AuthJwtPayload) {
     // Obtener el refresh token de la cookie
     const refreshToken = req.cookies?.refresh_token;
-    
+
     // Si no hay cookie, intentar obtenerlo del encabezado para compatibilidad
     if (!refreshToken) {
       const authorizationHeader = req.get('authorization');
@@ -48,7 +50,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
       const headerToken = authorizationHeader.replace('Bearer', '').trim();
       return this.authService.validateRefreshToken(payload.sub, headerToken);
     }
-    
+
     return this.authService.validateRefreshToken(payload.sub, refreshToken);
   }
 }
