@@ -1,10 +1,17 @@
-import { IsEmail, IsOptional, IsString, IsUrl, MinLength, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MinLength,
+  Matches,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({
     description: 'Nombre del usuario',
-    example: 'Juan'
+    example: 'Juan',
   })
   @IsString()
   @MinLength(2)
@@ -12,7 +19,7 @@ export class RegisterDto {
 
   @ApiProperty({
     description: 'Apellido del usuario',
-    example: 'Pérez'
+    example: 'Pérez',
   })
   @IsString()
   @MinLength(2)
@@ -20,7 +27,7 @@ export class RegisterDto {
 
   @ApiProperty({
     description: 'Correo electrónico del usuario (debe ser único)',
-    example: 'juan.perez@ejemplo.com'
+    example: 'juan.perez@ejemplo.com',
   })
   @IsString()
   @IsEmail()
@@ -29,7 +36,7 @@ export class RegisterDto {
   @ApiProperty({
     description: 'URL del avatar del usuario (opcional)',
     example: 'https://ejemplo.com/avatar.jpg',
-    required: false
+    required: false,
   })
   @IsString()
   @IsUrl()
@@ -37,13 +44,15 @@ export class RegisterDto {
   avatarUrl?: string;
 
   @ApiProperty({
-    description: 'Contraseña del usuario (mínimo 8 caracteres, debe incluir al menos una letra y un número)',
-    example: 'Password123'
+    description:
+      'Contraseña del usuario (mínimo 8 caracteres, debe incluir al menos una letra y un número)',
+    example: 'Password123',
   })
   @IsString()
   @MinLength(8)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'La contraseña debe contener al menos una letra mayúscula, una minúscula y un número o carácter especial'
+    message:
+      'La contraseña debe contener al menos una letra mayúscula, una minúscula y un número o carácter especial',
   })
   password: string;
 }

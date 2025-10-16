@@ -17,5 +17,3 @@ export default registerAs(
     migrationsRun: process.env.TYPEORM_MIGRATIONS_RUN === 'true',
   }),
 );
-  
-

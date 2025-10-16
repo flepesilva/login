@@ -13,10 +13,15 @@ export class StorageService {
     @Inject(storageConfig.KEY)
     private config: ConfigType<typeof storageConfig>,
   ) {
-    if (!this.config.awsS3BucketName || !this.config.awsRegion || !this.config.awsAccessKeyId || !this.config.awsSecretAccessKey) {
+    if (
+      !this.config.awsS3BucketName ||
+      !this.config.awsRegion ||
+      !this.config.awsAccessKeyId ||
+      !this.config.awsSecretAccessKey
+    ) {
       throw new Error('Faltan variables de configuración de AWS S3');
     }
-    this.bucket = this.config.awsS3BucketName; 
+    this.bucket = this.config.awsS3BucketName;
     this.region = this.config.awsRegion;
 
     // Inicializar el cliente S3 con AWS SDK v3
@@ -30,7 +35,11 @@ export class StorageService {
     });
   }
 
-  async uploadFile(key: string, buffer: Buffer, mimetype: string): Promise<string> {
+  async uploadFile(
+    key: string,
+    buffer: Buffer,
+    mimetype: string,
+  ): Promise<string> {
     // Crear un comando para subir objeto usando AWS SDK v3
     const command = new PutObjectCommand({
       Bucket: this.bucket,
@@ -42,7 +51,7 @@ export class StorageService {
 
     // Ejecutar el comando
     await this.s3Client.send(command);
-    
+
     // Construir y devolver la URL del archivo
     return `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
   }

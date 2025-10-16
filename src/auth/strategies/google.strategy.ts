@@ -10,7 +10,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(
     @Inject(googleAuthConfig.KEY)
     private googleConfig: ConfigType<typeof googleAuthConfig>,
-    private authService: AuthService
+    private authService: AuthService,
   ) {
     super(googleConfig);
   }
@@ -22,7 +22,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     try {
       const { name, emails, photos } = profile;
-      
+
       if (!emails || emails.length === 0) {
         throw new Error('No se pudo obtener el email del perfil de Google');
       }
@@ -41,4 +41,4 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       throw error;
     }
   }
-} 
+}

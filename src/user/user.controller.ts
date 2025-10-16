@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -54,7 +66,7 @@ export class UserController {
   async uploadAvatar(
     @Param('id') id: string,
     @UploadedFile() file: any,
-    @Request() req
+    @Request() req,
   ) {
     // Solo el propio usuario o un admin puede actualizar la foto
     if (req.user.role !== Role.ADMIN && req.user.userId !== +id) {

@@ -29,7 +29,7 @@ import { join } from 'path';
         if (dbConfiguration) {
           return dbConfiguration;
         }
-        
+
         // Configuración por defecto si no se encuentra la configuración en database
         return {
           type: 'postgres',
