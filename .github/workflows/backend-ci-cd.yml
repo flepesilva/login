@@ -74,7 +74,7 @@ jobs:
             set -e
 
             echo "📝 Creating .env file..."
-            cd ${{ secrets.SERVER_PATH }}/login
+            cd ${{ secrets.SERVER_PATH }}
 
             cat > .env << 'EOF'
           NODE_ENV=${{ secrets.NODE_ENV }}
