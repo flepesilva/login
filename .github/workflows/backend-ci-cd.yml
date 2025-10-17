@@ -153,7 +153,6 @@ jobs:
             git pull origin ${{ github.ref_name }}
 
             echo "🐳 Stopping containers..."
-            cd login
             docker compose down
 
             echo "🏗️  Building and starting containers..."
