@@ -1,0 +1,183 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+
+jobs:
+  test-and-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # TODO: Fix linting errors before enabling
+      # - name: Run linter
+      #   run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifacts
+        if: success() && github.ref_name != 'main' && startsWith(github.ref, 'refs/heads/release/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+
+  deploy-staging:
+    name: Deploy to Staging (developDO)
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+
+    environment:
+      name: staging
+
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: ssh-keyscan -H ${{ secrets.SERVER_HOST_STAGING }} >> ~/.ssh/known_hosts
+
+      - name: Create .env file
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST_STAGING }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PATH: ${{ secrets.SERVER_PATH }}
+        run: |
+          ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+            set -e
+
+            echo "📝 Creating .env file..."
+            cd ${{ secrets.SERVER_PATH }}
+
+            cat > .env << 'EOF'
+          NODE_ENV=${{ secrets.NODE_ENV }}
+          PORT=${{ secrets.PORT }}
+
+          # Database
+          POSTGRES_HOST=postgres
+          POSTGRES_PORT=5432
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          TYPEORM_SYNC=${{ secrets.TYPEORM_SYNC }}
+          TYPEORM_MIGRATIONS_RUN=${{ secrets.TYPEORM_MIGRATIONS_RUN }}
+
+          # Redis
+          REDIS_HOST=redis
+          REDIS_PORT=6379
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+
+          # JWT
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION_TIME=${{ secrets.JWT_EXPIRATION_TIME }}
+          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          JWT_REFRESH_EXPIRATION_TIME=${{ secrets.JWT_REFRESH_EXPIRATION_TIME }}
+          JWT_RESET_PASSWORD_SECRET=${{ secrets.JWT_RESET_PASSWORD_SECRET }}
+          JWT_RESET_PASSWORD_EXPIRATION_TIME=${{ secrets.JWT_RESET_PASSWORD_EXPIRATION_TIME }}
+
+          # Google OAuth
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}
+
+          # Email
+          MAILJET_API_KEY=${{ secrets.MAILJET_API_KEY }}
+          MAILJET_SECRET_KEY=${{ secrets.MAILJET_SECRET_KEY }}
+          MAIL_FROM=${{ secrets.MAIL_FROM }}
+
+          # URLs
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+          BACKEND_URL=${{ secrets.BACKEND_URL }}
+
+          # Rate limiting
+          THROTTLE_TTL=${{ secrets.THROTTLE_TTL }}
+          THROTTLE_LIMIT=${{ secrets.THROTTLE_LIMIT }}
+
+          # Webpay
+          WEBPAY_COMMERCE_CODE=${{ secrets.WEBPAY_COMMERCE_CODE }}
+          WEBPAY_API_KEY=${{ secrets.WEBPAY_API_KEY }}
+
+          # AWS S3
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_S3_ENDPOINT=${{ secrets.AWS_S3_ENDPOINT }}
+          EOF
+
+            echo "✅ .env file created successfully"
+          ENDSSH
+
+      - name: Deploy to server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST_STAGING }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PATH: ${{ secrets.SERVER_PATH }}
+        run: |
+          ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+            set -e
+
+            echo "📦 Navigating to project directory..."
+            cd ${{ secrets.SERVER_PATH }}
+
+            echo "🔄 Pulling latest changes..."
+            git fetch origin
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+
+            echo "🐳 Stopping containers..."
+            docker compose down
+
+            echo "🏗️  Building and starting containers..."
+            docker compose up --build -d
+
+            echo "⏳ Waiting for services to be healthy..."
+            sleep 10
+
+            echo "🔍 Checking backend health..."
+            if docker compose ps | grep -q "nestjs_backend.*Up"; then
+              echo "✅ Backend is running!"
+            else
+              echo "❌ Backend failed to start"
+              docker compose logs backend
+              exit 1
+            fi
+
+            echo "🎉 Deployment completed successfully!"
+          ENDSSH
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment to staging successful!"
+          else
+            echo "❌ Deployment to staging failed!"
+          fi

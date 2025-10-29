@@ -17,6 +17,7 @@ import resetPasswordJwtConfig from './config/reset-password-jwt.config';
 import { GoogleStrategy } from './strategies/google.strategy';
 import googleAuthConfig from './config/google-auth.config';
 import { StorageModule } from 'src/storage/storage.module';
+import { QueueModule } from 'src/queue/queue.module';
 
 @Module({
   imports: [
@@ -27,17 +28,17 @@ import { StorageModule } from 'src/storage/storage.module';
     ConfigModule.forFeature(resetPasswordJwtConfig),
     ConfigModule.forFeature(googleAuthConfig),
     MailModule,
-    StorageModule
+    StorageModule,
+    QueueModule,
   ],
   controllers: [AuthController],
   providers: [
-    AuthService, 
-    UserService, 
-    LocalStrategy, 
-    JwtStrategy, 
+    AuthService,
+    UserService,
+    LocalStrategy,
+    JwtStrategy,
     RefreshJwtStrategy,
-    GoogleStrategy
+    GoogleStrategy,
   ],
-
 })
 export class AuthModule {}

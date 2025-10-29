@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,36 +18,48 @@ import { Request, Express } from 'express';
 
 @Injectable()
 export class UserService {
-
-  constructor(@InjectRepository(User) private userRepository: Repository<User>, private storageService: StorageService){}
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+    private storageService: StorageService,
+  ) {}
 
   async updateRefreshToken(userId: number, hashedRefreshToken: string) {
-    return await this.userRepository.update({ id: userId }, { hashedRefreshToken });
+    return await this.userRepository.update(
+      { id: userId },
+      { hashedRefreshToken },
+    );
   }
 
-  async create(createUserDto: CreateUserDto, manager?: EntityManager, creatorRole?: Role): Promise<User> {
+  async create(
+    createUserDto: CreateUserDto,
+    manager?: EntityManager,
+    creatorRole?: Role,
+  ): Promise<User> {
     const repo = manager ? manager.getRepository(User) : this.userRepository;
-    const existingUser = await repo.findOne({ where: { email: createUserDto.email } });
+    const existingUser = await repo.findOne({
+      where: { email: createUserDto.email },
+    });
     if (existingUser) {
       throw new UnauthorizedException('User already exists');
     }
-    
+
     // Asignar rol por defecto si no se especifica
     if (!createUserDto.role) {
       createUserDto.role = Role.USER;
     }
-    
+
     // Solo ADMIN puede crear usuarios con rol ADMIN
     if (createUserDto.role === Role.ADMIN) {
       if (creatorRole !== Role.ADMIN) {
-        throw new ForbiddenException('Solo administradores pueden crear usuarios con roles privilegiados');
+        throw new ForbiddenException(
+          'Solo administradores pueden crear usuarios con roles privilegiados',
+        );
       }
     }
-  
+
     const user = repo.create(createUserDto);
     return await repo.save(user);
   }
-  
 
   findAll() {
     return this.userRepository.find();
@@ -72,18 +89,20 @@ export class UserService {
     await this.userRepository.save(user);
   }
 
-  async changePassword(userId: number, currentPassword: string, newPassword: string): Promise<void> {
-  const user = await this.userRepository.findOne({ where: { id: userId } });
-  if (!user) throw new NotFoundException('User not found');
+  async changePassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
 
-  const isMatch = await argon2.verify(user.password, currentPassword);
-  if (!isMatch) throw new UnauthorizedException('Incorrect current password');
+    const isMatch = await argon2.verify(user.password, currentPassword);
+    if (!isMatch) throw new UnauthorizedException('Incorrect current password');
 
-  const hashed = await argon2.hash(newPassword);
-  await this.userRepository.update(userId, { password: hashed });
-}
-
-
+    const hashed = await argon2.hash(newPassword);
+    await this.userRepository.update(userId, { password: hashed });
+  }
 
   async findByEmail(email: string) {
     return await this.userRepository.findOne({
@@ -91,7 +110,6 @@ export class UserService {
         email,
       },
     });
-    
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -116,7 +134,11 @@ export class UserService {
     // Generar un nombre de archivo único
     const fileExt = file.originalname.split('.').pop();
     const key = `avatars/user-${userId}-${Date.now()}.${fileExt}`;
-    const url = await this.storageService.uploadFile(key, file.buffer, file.mimetype);
+    const url = await this.storageService.uploadFile(
+      key,
+      file.buffer,
+      file.mimetype,
+    );
     user.avatarUrl = url;
     await this.userRepository.save(user);
     return url;
